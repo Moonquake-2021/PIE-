@@ -1,0 +1,33 @@
+/// <summary>
+        ///大气校正算法测试,本算法实现了将GF1_PMS1_E116.5_N39.4_20131127_L1A0000117600-MSS1.tiff进行大气校正
+        ///大气模式为系统自动选择大气模式，气溶胶类型为大陆性气溶胶，初始能见度为40km，逐项元反演气溶胶为是
+        /// </summary>
+        public override void OnClick()
+        {
+            #region 1、参数设置
+            PIE.CommonAlgo.DataProcess_AtmCor_Info info = new PIE.CommonAlgo.DataProcess_AtmCor_Info();
+
+            info.InputFile = @"D:\Data\GF1_PMS1_E116.5_N39.4_20131127_L1A0000117600-MSS1.tiff";
+            info.InputXML = @"D:\Data\GF1_PMS1_E116.5_N39.4_20131127_L1A0000117600-MSS1.xml";
+            info.OutputSR = @"D:\Data\result2.tif";
+            info.AtmModel = 0;
+            info.AerosolType = 1;
+            info.InitialVIS = 40;
+            info.AeroRetrieval = 1;
+            info.FileTypeCode = "Gtiff";
+            info.DataType = 1;
+
+            PIE.SystemAlgo.ISystemAlgo algo = PIE.SystemAlgo.AlgoFactory.Instance().CreateAlgo("PIE.CommonAlgo.dll", "PIE.CommonAlgo.AtmosphericCorrectionAlgo");
+            if (algo == null) return;
+            #endregion
+
+            //2、算法执行
+            PIE.SystemAlgo.ISystemAlgoEvents algoEvents = algo as PIE.SystemAlgo.ISystemAlgoEvents;
+            algo.Name = "大气校正";
+            algo.Params = info;
+            bool result = PIE.SystemAlgo.AlgoFactory.Instance().ExecuteAlgo(algo);
+
+            //3、结果显示
+            ILayer layer = PIE.Carto.LayerFactory.CreateDefaultLayer(@"D:\Data\result2.tif");
+            m_HookHelper.ActiveView.FocusMap.AddLayer(layer);            m_HookHelper.ActiveView.PartialRefresh(ViewDrawPhaseType.ViewAll);
+        }
